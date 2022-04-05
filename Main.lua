@@ -49,7 +49,7 @@ ArsenalHub.TextScaled = true
 ArsenalHub.TextSize = 14.000
 ArsenalHub.TextWrapped = true
 ArsenalHub.MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet('https://pastebin.com/raw/T3fzg7tm', true))()
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/RynX0z/BHINaiyuwft72/main/Script/Tracer.lua', true))()
 end)
 
 Alinity_Hub.Name = "Alinity_Hub"
@@ -65,5 +65,5 @@ Alinity_Hub.TextScaled = true
 Alinity_Hub.TextSize = 14.000
 Alinity_Hub.TextWrapped = true
 Alinity_Hub.MouseButton1Click:Connect(function()
-	loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Allinity/Allinity-Hub/main/AllinityHubv.1.lua"))()
+	loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/RynX0z/BHINaiyuwft72/main/Script/Box.lua"))()
 end)
