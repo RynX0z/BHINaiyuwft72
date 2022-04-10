@@ -39,7 +39,7 @@ _G.FromCenter = false   -- If set to true, the tracers will come from the center
 _G.FromBottom = true   -- If set to true, the tracers will come from the bottom of your screen.
 
 _G.TracersVisible = true   -- If set to true then the tracers will be visible and vice versa.
-_G.TracerColor = Color3.fromRGB(255, 80, 10)   -- The color that the tracers would appear as.
+_G.TracerColor = Color3.fromRGB(0, 0, 10)   -- The color that the tracers would appear as.
 _G.TracerThickness = 1   -- The thickness of the tracers.
 _G.TracerTransparency = 0.7   -- The transparency of the tracers.
 
