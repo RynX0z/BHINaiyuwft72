@@ -1,102 +1,100 @@
-    local ScreenGui = Instance.new("ScreenGui")
-local Aimbot = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local Toggle = Instance.new("TextButton")
+local Camera = workspace.CurrentCamera
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local Holding = false
 
---Properties:
+_G.AimbotEnabled = true
+_G.TeamCheck = false -- If set to true then the script would only lock your aim at enemy team members.
+_G.AimPart = "Head" -- Where the aimbot script would lock at.
+_G.Sensitivity = 0 -- How many seconds it takes for the aimbot script to officially lock onto the target's aimpart.
 
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+_G.CircleSides = 64 -- How many sides the FOV circle would have.
+_G.CircleColor = Color3.fromRGB(255, 255, 255) -- (RGB) Color that the FOV circle would appear as.
+_G.CircleTransparency = 0.7 -- Transparency of the circle.
+_G.CircleRadius = 80 -- The radius of the circle / FOV.
+_G.CircleFilled = false -- Determines whether or not the circle is filled.
+_G.CircleVisible = true -- Determines whether or not the circle is visible.
+_G.CircleThickness = 0 -- The thickness of the circle.
 
-Aimbot.Name = "Aimbot"
-Aimbot.Parent = ScreenGui
-Aimbot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Aimbot.Position = UDim2.new(0.0599842146, 0, 0.358722359, 0)
-Aimbot.Size = UDim2.new(0, 126, 0, 152)
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Filled = _G.CircleFilled
+FOVCircle.Color = _G.CircleColor
+FOVCircle.Visible = _G.CircleVisible
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Transparency = _G.CircleTransparency
+FOVCircle.NumSides = _G.CircleSides
+FOVCircle.Thickness = _G.CircleThickness
 
-Title.Name = "Title"
-Title.Parent = Aimbot
-Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Title.Size = UDim2.new(0, 126, 0, 50)
-Title.Font = Enum.Font.SourceSans
-Title.Text = "Aimlock"
-Title.TextColor3 = Color3.fromRGB(20, 30, 69)
-Title.TextSize = 20.000
+local function GetClosestPlayer()
+	local MaximumDistance = _G.CircleRadius
+	local Target = nil
 
-Toggle.Name = "Toggle"
-Toggle.Parent = Aimbot
-Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Toggle.BorderSizePixel = 0
-Toggle.Position = UDim2.new(0, 0, 0.473684222, 0)
-Toggle.Size = UDim2.new(0, 126, 0, 50)
-Toggle.Font = Enum.Font.SourceSans
-Toggle.Text = "Off"
-Toggle.TextColor3 = Color3.fromRGB(255, 0, 0)
-Toggle.TextSize = 40.000
-
--- Scripts:
-
-local function PNHLOYF_fake_script() -- Toggle.LocalScript 
-	local script = Instance.new('LocalScript', Toggle)
-
-	_G.aimbot = false
-	local camera = game.Workspace.CurrentCamera
-	local localplayer = game:GetService("Players").LocalPlayer
-	
-	script.Parent.MouseButton1Click:Connect(function()
-		if _G.aimbot == false then
-			_G.aimbot = true
-			script.Parent.TextColor3 = Color3.fromRGB(0,170,0)
-			script.Parent.Text = "On"
-			function closestplayer()
-				local dist = math.huge -- math.huge means a really large number, 1M+.
-				local target = nil --- nil means no value
-				for i,v in pairs (game:GetService("Players"):GetPlayers()) do
-					if v ~= localplayer then
-						if v.Character and v.Character:FindFirstChild("Head") and v.TeamColor ~= localplayer.TeamColor and _G.aimbot and v.Character.Humanoid.Health > 0 then --- creating the checks
-							local magnitude = (v.Character.Head.Position - localplayer.Character.Head.Position).magnitude
-							if magnitude < dist then
-								dist = magnitude
-								target = v
+	for _, v in next, Players:GetPlayers() do
+		if v.Name ~= LocalPlayer.Name then
+			if _G.TeamCheck == true then
+				if v.Team ~= LocalPlayer.Team then
+					if v.Character ~= nil then
+						if v.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+							if v.Character:FindFirstChild("Humanoid") ~= nil and v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+								local ScreenPoint = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+								local VectorDistance = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(ScreenPoint.X, ScreenPoint.Y)).Magnitude
+								
+								if VectorDistance < MaximumDistance then
+									Target = v
+								end
 							end
-							
 						end
 					end
 				end
-				return target
+			else
+				if v.Character ~= nil then
+					if v.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+						if v.Character:FindFirstChild("Humanoid") ~= nil and v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+							local ScreenPoint = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+							local VectorDistance = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(ScreenPoint.X, ScreenPoint.Y)).Magnitude
+							
+							if VectorDistance < MaximumDistance then
+								Target = v
+							end
+						end
+					end
+				end
 			end
-			
-		else
-			_G.aimbot = false
-			script.Parent.TextColor3 = Color3.fromRGB(255,0,0)
-			script.Parent.Text = "Off"
 		end
-	end)
-	
-	local settings = {
-		keybind = Enum.UserInputType.MouseButton2
-	}
-	
-	local UIS = game:GetService("UserInputService")
-	local aiming = false --- this toggle will make it so we lock on to the person when we press our keybind
-	
-	UIS.InputBegan:Connect(function(inp)
-		if inp.UserInputType == settings.keybind then
-			aiming = true
-		end
-	end)
-	
-	UIS.InputEnded:Connect(function(inp)
-		if inp.UserInputType == settings.keybind then ---- when we stop pressing the keybind it would unlock off the player
-			aiming = false
-		end
-	end)
-	
-	game:GetService("RunService").RenderStepped:Connect(function()
-		if aiming then
-			camera.CFrame = CFrame.new(camera.CFrame.Position,closestplayer().Character.Head.Position) -- locks into the HEAD
-		end
-	end)
+	end
+
+	return Target
 end
-coroutine.wrap(PNHLOYF_fake_script)()
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    FOVCircle.Position = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
+    FOVCircle.Radius = _G.CircleRadius
+    FOVCircle.Filled = _G.CircleFilled
+    FOVCircle.Color = _G.CircleColor
+    FOVCircle.Visible = _G.CircleVisible
+    FOVCircle.Radius = _G.CircleRadius
+    FOVCircle.Transparency = _G.CircleTransparency
+    FOVCircle.NumSides = _G.CircleSides
+    FOVCircle.Thickness = _G.CircleThickness
+
+    if Holding == true and _G.AimbotEnabled == true then
+        TweenService:Create(Camera, TweenInfo.new(_G.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(Camera.CFrame.Position, GetClosestPlayer().Character[_G.AimPart].Position)}):Play()
+    end
 end)
